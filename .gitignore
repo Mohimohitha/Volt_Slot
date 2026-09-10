@@ -1,0 +1,7 @@
+node_modules/
+.env
+voltslot-frontend/node_modules/
+voltslot-backend/node_modules/
+voltslot-frontend/dist/
+.DS_Store
+.vscode/

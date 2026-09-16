@@ -60,7 +60,7 @@ function AppContent() {
   const [selectedStationForBooking, setSelectedStationForBooking] = useState(null);
   const [refreshDashboardTrigger, setRefreshDashboardTrigger] = useState(0);
 
-  // Helper to resolve consistent user key
+  // Helper to resolve consistent, account-specific user key
   const getUserKey = (targetUser) => {
     if (!targetUser) return null;
     return `voltslot_vehicle_${targetUser.id || targetUser._id || targetUser.email}`;
@@ -70,11 +70,11 @@ function AppContent() {
     localStorage.setItem('voltslot_current_page', currentPage);
   }, [currentPage]);
 
-  // Load profile whenever user changes or authenticates
+  // Load profile strictly for the current logged-in user
   useEffect(() => {
     if (user) {
       const userKey = getUserKey(user);
-      const saved = localStorage.getItem(userKey) || localStorage.getItem('voltslot_vehicle');
+      const saved = localStorage.getItem(userKey);
 
       if (saved) {
         try {
@@ -83,13 +83,14 @@ function AppContent() {
           setShowOnboarding(false);
           return;
         } catch {
-          // ignore parsing error and proceed to prompt
+          // invalid data, proceed to fallback prompt
         }
       }
 
-      // Check if user already dismissed modal during this session
-      const dismissed = sessionStorage.getItem(`voltslot_dismiss_${userKey}`);
+      // If no vehicle saved for this account, reset active profile
       setActiveVehicleProfile(null);
+
+      const dismissed = sessionStorage.getItem(`voltslot_dismiss_${userKey}`);
       if (!dismissed) {
         setShowOnboarding(true);
       }
@@ -108,7 +109,7 @@ function AppContent() {
     setCurrentPage('dashboard');
 
     const userKey = getUserKey(userData);
-    const saved = localStorage.getItem(userKey) || localStorage.getItem('voltslot_vehicle');
+    const saved = localStorage.getItem(userKey);
     if (saved) {
       try {
         setActiveVehicleProfile(JSON.parse(saved));
@@ -118,15 +119,15 @@ function AppContent() {
         // fallback
       }
     }
+    setActiveVehicleProfile(null);
     setShowOnboarding(true);
   };
 
-  // Persist to localStorage upon configuration
+  // Persist strictly under this user's key
   const handleOnboardingComplete = (newProfile) => {
     if (user) {
       const userKey = getUserKey(user);
       localStorage.setItem(userKey, JSON.stringify(newProfile));
-      localStorage.setItem('voltslot_vehicle', JSON.stringify(newProfile));
     }
     setActiveVehicleProfile(newProfile);
     setShowOnboarding(false);

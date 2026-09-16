@@ -51,7 +51,7 @@ export default function Dashboard({
       let data = await res.json();
 
       if (!Array.isArray(data) || data.length < 2) {
-        await fetch(`https://volt-slot.onrender.com/api/stations/sync?lat=${lat}&lng=${lng}&distance=35&city=${encodeURIComponent(city)}`,  {
+        await fetch(`https://volt-slot.onrender.com/api/stations/sync?lat=${lat}&lng=${lng}&distance=35&city=${encodeURIComponent(city)}`, {
           method: 'POST'
         });
         res = await fetch(`https://volt-slot.onrender.com/api/stations/nearby?lat=${lat}&lng=${lng}&maxDistance=50`);
@@ -181,28 +181,43 @@ export default function Dashboard({
             <p className="text-[11px] text-slate-500 dark:text-[#8899a6]">Direct carbon avoided this month</p>
           </div>
 
-          <div className="bg-white dark:bg-[#0e161b] border border-slate-200 dark:border-[#18252d] p-5 rounded-2xl shadow-sm transition-colors">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-mono text-slate-500 dark:text-[#8899a6] uppercase">Registered EV</span>
-              <ShieldCheck size={18} className="text-[#00e5ff]" />
+          {/* Clean Registered EV Card: No fake dummy plate when unconfigured */}
+          <div className="bg-white dark:bg-[#0e161b] border border-slate-200 dark:border-[#18252d] p-5 rounded-2xl shadow-sm transition-colors flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-mono text-slate-500 dark:text-[#8899a6] uppercase">Registered EV</span>
+                <ShieldCheck size={18} className={vehicleProfile ? "text-[#00e5ff]" : "text-slate-400"} />
+              </div>
+              <div className="text-base font-bold text-slate-900 dark:text-white truncate">
+                {vehicleProfile ? vehicleProfile.model : 'No Vehicle Configured'}
+              </div>
             </div>
-            <div className="text-base font-bold text-slate-900 dark:text-white truncate">
-              {vehicleProfile?.model || 'No Vehicle Configured'}
-            </div>
-            <div className="flex items-center justify-between mt-1 text-[11px] font-mono">
-              <span className="text-[#00e5ff]">
-                {vehicleProfile?.regNumber || 'AP03CD1234'}
-              </span>
-              {vehicleProfile?.location?.city && (
-                <span className="text-slate-400 flex items-center gap-0.5 truncate max-w-[110px]">
-                  <MapPin size={10} /> {vehicleProfile.location.city}
-                </span>
+
+            <div className="flex items-center justify-between mt-3 text-[11px] font-mono">
+              {vehicleProfile ? (
+                <>
+                  <span className="text-[#00e5ff] font-semibold">
+                    {vehicleProfile.regNumber}
+                  </span>
+                  {vehicleProfile.location?.city && (
+                    <span className="text-slate-400 flex items-center gap-0.5 truncate max-w-[110px]">
+                      <MapPin size={10} /> {vehicleProfile.location.city}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <button
+                  onClick={onOpenVehicleSetup}
+                  className="text-[#00e5ff] hover:underline cursor-pointer flex items-center gap-1 font-semibold"
+                >
+                  + Add Vehicle Plate
+                </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Nearby Charging Stations - Clean 2-per-row grid without map interception */}
+        {/* Nearby Charging Stations */}
         <div className="bg-white dark:bg-[#0e161b] border border-slate-200 dark:border-[#18252d] rounded-2xl p-6 shadow-sm transition-colors space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-200 dark:border-[#152026]">
             <div>

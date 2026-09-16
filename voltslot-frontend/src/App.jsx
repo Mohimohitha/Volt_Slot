@@ -60,19 +60,37 @@ function AppContent() {
   const [selectedStationForBooking, setSelectedStationForBooking] = useState(null);
   const [refreshDashboardTrigger, setRefreshDashboardTrigger] = useState(0);
 
+  // Helper to resolve consistent user key
+  const getUserKey = (targetUser) => {
+    if (!targetUser) return null;
+    return `voltslot_vehicle_${targetUser.id || targetUser._id || targetUser.email}`;
+  };
+
   useEffect(() => {
     localStorage.setItem('voltslot_current_page', currentPage);
   }, [currentPage]);
 
+  // Load profile whenever user changes or authenticates
   useEffect(() => {
     if (user) {
-      const userKey = `voltslot_vehicle_${user.id || user._id || user.email}`;
-      const saved = localStorage.getItem(userKey);
+      const userKey = getUserKey(user);
+      const saved = localStorage.getItem(userKey) || localStorage.getItem('voltslot_vehicle');
+
       if (saved) {
-        setActiveVehicleProfile(JSON.parse(saved));
-        setShowOnboarding(false);
-      } else {
-        setActiveVehicleProfile(null);
+        try {
+          const parsed = JSON.parse(saved);
+          setActiveVehicleProfile(parsed);
+          setShowOnboarding(false);
+          return;
+        } catch {
+          // ignore parsing error and proceed to prompt
+        }
+      }
+
+      // Check if user already dismissed modal during this session
+      const dismissed = sessionStorage.getItem(`voltslot_dismiss_${userKey}`);
+      setActiveVehicleProfile(null);
+      if (!dismissed) {
         setShowOnboarding(true);
       }
     } else {
@@ -89,18 +107,36 @@ function AppContent() {
     login(userData, token);
     setCurrentPage('dashboard');
 
-    const userKey = `voltslot_vehicle_${userData.id || userData._id || userData.email}`;
-    const saved = localStorage.getItem(userKey);
-    if (!saved) {
-      setShowOnboarding(true);
-    } else {
-      setActiveVehicleProfile(JSON.parse(saved));
-      setShowOnboarding(false);
+    const userKey = getUserKey(userData);
+    const saved = localStorage.getItem(userKey) || localStorage.getItem('voltslot_vehicle');
+    if (saved) {
+      try {
+        setActiveVehicleProfile(JSON.parse(saved));
+        setShowOnboarding(false);
+        return;
+      } catch {
+        // fallback
+      }
     }
+    setShowOnboarding(true);
   };
 
+  // Persist to localStorage upon configuration
   const handleOnboardingComplete = (newProfile) => {
+    if (user) {
+      const userKey = getUserKey(user);
+      localStorage.setItem(userKey, JSON.stringify(newProfile));
+      localStorage.setItem('voltslot_vehicle', JSON.stringify(newProfile));
+    }
     setActiveVehicleProfile(newProfile);
+    setShowOnboarding(false);
+  };
+
+  const handleCloseOnboarding = () => {
+    if (user) {
+      const userKey = getUserKey(user);
+      sessionStorage.setItem(`voltslot_dismiss_${userKey}`, 'true');
+    }
     setShowOnboarding(false);
   };
 
@@ -164,7 +200,7 @@ function AppContent() {
           isOpen={showOnboarding}
           user={user}
           currentProfile={activeVehicleProfile}
-          onClose={() => setShowOnboarding(false)}
+          onClose={handleCloseOnboarding}
           onComplete={handleOnboardingComplete}
         />
       )}
@@ -178,7 +214,6 @@ function AppContent() {
           onBookingSuccess={(reservation) => {
             setSelectedStationForBooking(null);
             
-            // Dispatch Booking Success Notification
             addNotification({
               title: 'Booking Confirmed',
               message: `Your EV charging slot at ${selectedStationForBooking.name} (Bay #${reservation.bayNumber}) has been booked successfully. Amount Paid: ₹${reservation.amountPaid}.`,

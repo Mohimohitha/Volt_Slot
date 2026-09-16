@@ -1,4 +1,4 @@
-import Station from '../models/Station.js';
+import Station from '../models/station.js';
 
 // Haversine formula for exact distance in kilometers
 const calculateDistance = (lat1, lon1, lat2, lon2) => {

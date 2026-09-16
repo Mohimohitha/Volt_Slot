@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import Reservation from '../models/Reservation.js';
-import Station from '../models/Station.js';
+import Reservation from '../models/reservation.js';
+import Station from '../models/station.js';
 
 // 1. Check real-time bay availability to disable booked slots in UI Step 1
 export const getBayAvailability = async (req, res) => {

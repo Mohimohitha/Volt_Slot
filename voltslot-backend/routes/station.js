@@ -1,5 +1,5 @@
 import express from 'express';
-import Station from '../models/Station.js';
+import Station from '../models/station.js';
 import {
   getNearbyStations,
   syncOpenChargeMapStations,

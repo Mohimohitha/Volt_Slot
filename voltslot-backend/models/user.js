@@ -1,34 +1,16 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
-const UserSchema = new mongoose.Schema({
-    // Account Credentials 
-    email: {
-        type: String,
-        required: true,
-        unique: true
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    password: { type: String, required: true },
+    defaultVehicle: {
+      model: { type: String, default: "Tata Nexon EV" },
+      regNumber: { type: String, default: "" },
     },
-    password: {
-        type: String,
-        required: true
-    },
-    
-    // Onboarding Details 
-    fullName: {
-        type: String,
-        default: ""
-    },
-    phoneNumber: {
-        type: String,
-        default: ""
-    },
-    evModel: {
-        type: String,
-        default: ""
-    },
-    plugType: {
-        type: String,
-        default: ""
-    }
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('User', UserSchema);
+export default mongoose.model("User", userSchema);

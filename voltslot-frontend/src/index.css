@@ -1,7 +1,49 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 body {
-  background-color: #101619;
+  background-color: #f8fafc; /* Slate-50 default for light mode */
   margin: 0;
   padding: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+html.dark body {
+  background-color: #101619; /* Dark mode background */
+}
+
+/* --- LEAFLET CYANG & DARK THEME OVERRIDES --- */
+
+/* Invert and tone map tiles in dark mode to preserve cyan contrast */
+html.dark .leaflet-tile {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+}
+
+/* Custom dark/cyan popup container */
+.leaflet-popup-content-wrapper {
+  background: #0e161b !important;
+  color: #ffffff !important;
+  border: 1px solid #1c2a32 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-popup-tip {
+  background: #0e161b !important;
+}
+
+.leaflet-container {
+  font-family: inherit;
+}
+
+/* Custom leaflet marker alignment */
+.custom-station-marker,
+.custom-user-marker {
+  background: transparent;
+  border: none;
 }

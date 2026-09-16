@@ -1,7 +1,11 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+
+import authRoutes from "./routes/auth.js";
+import stationRoutes from "./routes/station.js";
+import reservationRoutes from "./routes/reservation.js";
 
 dotenv.config();
 
@@ -10,20 +14,26 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect(process.env.MONGO_URI);
+app.use("/api/auth", authRoutes);
+app.use("/api/stations", stationRoutes);
+app.use("/api/reservations", reservationRoutes);
 
-const db = mongoose.connection;
-db.once('open', () => {
-    console.log('MongoDB Database connection established successfully');
+app.get("/", (req, res) => {
+  res.send("VoltSlot Core Engine Running...");
 });
 
-app.use('/api/auth', require('./routes/auth'));
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/voltslot";
 
-app.get('/', (req, res) => {
-    res.send('VoltSlot API Server Engine is Running Smoothly');
-});
-
-app.listen(PORT, () => {
-    console.log(`Server is actively running on port: ${PORT}`);
-});
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    console.log("Connected to MongoDB Atlas");
+    app.listen(PORT, () => {
+      console.log(`VoltSlot server active on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection error:", err.message);
+  });

@@ -40,7 +40,7 @@ export default function MyBookings({ onNavigate }) {
         return;
       }
 
-      const res = await fetch(`http://localhost:5000/api/reservations/user/${activeUserId}`, {
+        const res = await fetch(`https://volt-slot.onrender.com/api/reservations/user/${activeUserId}`, {
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -65,7 +65,7 @@ export default function MyBookings({ onNavigate }) {
     if (!cancelTarget) return;
     try {
       setCancelling(true);
-      const res = await fetch(`http://localhost:5000/api/reservations/${cancelTarget._id}/cancel`, {
+        const res = await fetch(`https://volt-slot.onrender.com/api/reservations/${cancelTarget._id}/cancel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -47,7 +47,7 @@ export default function BookingModal({ station, vehicleProfile, onClose, onBooki
         setCheckingAvailability(true);
         const stId = station._id || station.id;
         const res = await fetch(
-          `http://localhost:5000/api/reservations/availability/${stId}?startTime=${new Date(startTime).toISOString()}&durationMinutes=${durationMinutes}`
+          `https://volt-slot.onrender.com/api/reservations/availability/${stId}?startTime=${new Date(startTime).toISOString()}&durationMinutes=${durationMinutes}`
         );
         const data = await res.json();
         if (res.ok && Array.isArray(data.reservedBays)) {
@@ -82,7 +82,7 @@ export default function BookingModal({ station, vehicleProfile, onClose, onBooki
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const res = await fetch('http://localhost:5000/api/reservations/book', {
+        const res = await fetch('https://volt-slot.onrender.com/api/reservations/book', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

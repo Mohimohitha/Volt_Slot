@@ -25,14 +25,14 @@ export default function Stations({ vehicleProfile, onBookSlot }) {
       const lng = vehicleProfile?.location?.lng || 78.4867;
       const city = vehicleProfile?.location?.city || 'Local Area';
 
-      let res = await fetch(`http://localhost:5000/api/stations/nearby?lat=${lat}&lng=${lng}&maxDistance=50`);
+      let res = await fetch(`https://volt-slot.onrender.com/api/stations/nearby?lat=${lat}&lng=${lng}&maxDistance=50`);
       let data = await res.json();
 
       if (!Array.isArray(data) || data.length < 2) {
-        await fetch(`http://localhost:5000/api/stations/sync?lat=${lat}&lng=${lng}&distance=35&city=${encodeURIComponent(city)}`, {
+        await fetch(`https://volt-slot.onrender.com/api/stations/sync?lat=${lat}&lng=${lng}&distance=35&city=${encodeURIComponent(city)}`, {
           method: 'POST'
         });
-        res = await fetch(`http://localhost:5000/api/stations/nearby?lat=${lat}&lng=${lng}&maxDistance=50`);
+        res = await fetch(`https://volt-slot.onrender.com/api/stations/nearby?lat=${lat}&lng=${lng}&maxDistance=50`);
         data = await res.json();
       }
 
